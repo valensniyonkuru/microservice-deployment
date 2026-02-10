@@ -7,14 +7,14 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install dependencies (use legacy-peer-deps to handle version conflicts)
+RUN npm ci --only=production --legacy-peer-deps && npm cache clean --force
 
 # Copy production node_modules aside
 RUN cp -R node_modules /tmp/node_modules
 
 # Install all dependencies (including dev dependencies for build)
-RUN npm ci
+RUN npm ci --legacy-peer-deps
 
 # Copy source code
 COPY . .
