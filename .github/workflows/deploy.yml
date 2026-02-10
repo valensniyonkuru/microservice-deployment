@@ -10,42 +10,10 @@ env:
   ENVIRONMENT: production
 
 jobs:
-  # Build and push Docker images
-  build:
-    name: Build Images
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        service: [books, customers, orders]
-    
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: ./services/${{ matrix.service }}
-          push: true
-          tags: |
-            ${{ steps.login-ecr.outputs.registry }}/library-management-${{ env.ENVIRONMENT }}-${{ matrix.service }}:latest
-            ${{ steps.login-ecr.outputs.registry }}/library-management-${{ env.ENVIRONMENT }}-${{ matrix.service }}:${{ github.sha }}
-
-  # Deploy infrastructure
+  # Deploy infrastructure FIRST (creates ECR repositories)
   infrastructure:
     name: Deploy Infrastructure
     runs-on: ubuntu-latest
-    needs: [build]
     
     steps:
       - uses: actions/checkout@v4
@@ -75,11 +43,43 @@ jobs:
           TF_VAR_jwt_secret: ${{ secrets.JWT_SECRET }}
         run: terraform apply -auto-approve
 
+  # Build and push Docker images (after infrastructure is ready)
+  build:
+    name: Build Images
+    runs-on: ubuntu-latest
+    needs: [infrastructure]
+    strategy:
+      matrix:
+        service: [books, customers, orders]
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: ./services/${{ matrix.service }}
+          push: true
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/library-management-${{ env.ENVIRONMENT }}-${{ matrix.service }}:latest
+            ${{ steps.login-ecr.outputs.registry }}/library-management-${{ env.ENVIRONMENT }}-${{ matrix.service }}:${{ github.sha }}
+
   # Deploy services
   deploy:
     name: Deploy Services
     runs-on: ubuntu-latest
-    needs: [infrastructure]
+    needs: [build]
     strategy:
       max-parallel: 1
       matrix:
