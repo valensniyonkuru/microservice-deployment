@@ -4,7 +4,7 @@
 set -e
 
 # Configuration
-REGION="us-east-1"
+REGION="eu-north-1"
 BUCKET_NAME="lib-mgmt-terraform-state-${RANDOM}"
 DYNAMODB_TABLE="lib-mgmt-terraform-locks"
 
@@ -18,10 +18,16 @@ echo "DynamoDB Table: $DYNAMODB_TABLE"
 echo ""
 
 # Create S3 bucket for Terraform state
+# In regions other than us-east-1, LocationConstraint is required
 echo "Creating S3 bucket..."
-aws s3api create-bucket \
-  --bucket $BUCKET_NAME \
-  --region $REGION 2>/dev/null || echo "Bucket might already exist"
+if [ "$REGION" = "us-east-1" ]; then
+  aws s3api create-bucket --bucket $BUCKET_NAME --region $REGION 2>/dev/null || echo "Bucket might already exist"
+else
+  aws s3api create-bucket \
+    --bucket $BUCKET_NAME \
+    --region $REGION \
+    --create-bucket-configuration LocationConstraint=$REGION 2>/dev/null || echo "Bucket might already exist"
+fi
 
 # Enable versioning on the bucket
 echo "Enabling versioning..."

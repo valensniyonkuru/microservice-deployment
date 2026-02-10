@@ -13,7 +13,7 @@ This Terraform configuration deploys a complete microservices architecture on AW
 │  │                                                             │ │
 │  │  ┌──────────────────┐         ┌──────────────────┐        │ │
 │  │  │  Public Subnet   │         │  Public Subnet   │        │ │
-│  │  │   (us-east-1a)   │         │   (us-east-1b)   │        │ │
+│  │  │   (eu-north-1a)  │         │   (eu-north-1b)  │        │ │
 │  │  │                  │         │                  │        │ │
 │  │  │  ┌────────────┐  │         │  ┌────────────┐  │        │ │
 │  │  │  │    ALB     │◄─┼─────────┼─►│   NAT GW   │  │        │ │
@@ -22,7 +22,7 @@ This Terraform configuration deploys a complete microservices architecture on AW
 │  │           │                            │                   │ │
 │  │  ┌────────▼──────────┐        ┌───────▼──────────┐        │ │
 │  │  │  Private Subnet   │        │  Private Subnet  │        │ │
-│  │  │   (us-east-1a)    │        │   (us-east-1b)   │        │ │
+│  │  │   (eu-north-1a)   │        │   (eu-north-1b)  │        │ │
 │  │  │                   │        │                  │        │ │
 │  │  │  ┌─────────────┐  │        │  ┌─────────────┐│        │ │
 │  │  │  │ECS Services │  │        │  │ECS Services ││        │ │
@@ -143,8 +143,8 @@ docker build -t library-orders:latest ./services/orders
 Get ECR login credentials:
 
 ```bash
-aws ecr get-login-password --region us-east-1 | \
-  docker login --username AWS --password-stdin <account-id>.dkr.ecr.us-east-1.amazonaws.com
+aws ecr get-login-password --region eu-north-1 | \
+  docker login --username AWS --password-stdin <account-id>.dkr.ecr.eu-north-1.amazonaws.com
 ```
 
 Tag and push images:
@@ -335,7 +335,7 @@ terraform {
   backend "s3" {
     bucket         = "your-terraform-state-bucket"
     key            = "library-management/terraform.tfstate"
-    region         = "us-east-1"
+    region         = "eu-north-1"
     encrypt        = true
     dynamodb_table = "terraform-state-lock"
   }
@@ -450,7 +450,7 @@ terraform/
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `aws_region` | AWS region | `us-east-1` |
+| `aws_region` | AWS region | `eu-north-1` |
 | `environment` | Environment name | `dev` |
 | `vpc_cidr` | VPC CIDR block | `10.0.0.0/16` |
 | `db_instance_class` | RDS instance class | `db.t3.micro` |
@@ -493,7 +493,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          aws-region: eu-north-1
       
       - name: Build and push Docker images
         run: |

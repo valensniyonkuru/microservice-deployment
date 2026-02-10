@@ -7,7 +7,7 @@ echo "Importing existing resources into Terraform state..."
 
 # Get AWS Account ID
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-REGION="us-east-1"
+REGION="eu-north-1"
 ENV="production"
 
 cd terraform
