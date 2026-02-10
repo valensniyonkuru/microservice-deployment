@@ -2,11 +2,11 @@ name: Deploy to Production
 
 on:
   push:
-    branches: [master]
+    branches: [main, master]
   workflow_dispatch:
 
 env:
-  AWS_REGION: us-east-1
+  AWS_REGION: eu-north-1
   ENVIRONMENT: production
 
 jobs:
@@ -32,7 +32,7 @@ jobs:
 
       - name: Terraform Init
         working-directory: terraform
-        run: terraform init
+        run: terraform init -reconfigure
 
       - name: Terraform Apply
         working-directory: terraform
@@ -41,7 +41,7 @@ jobs:
           TF_VAR_database_password: ${{ secrets.DATABASE_PASSWORD }}
           TF_VAR_rabbitmq_password: ${{ secrets.RABBITMQ_PASSWORD }}
           TF_VAR_jwt_secret: ${{ secrets.JWT_SECRET }}
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve -input=false
 
   # Build and push Docker images (after infrastructure is ready)
   build:
@@ -84,6 +84,9 @@ jobs:
       max-parallel: 1
       matrix:
         service: [books, customers, orders]
+    env:
+      AWS_REGION: eu-north-1
+      CLUSTER_NAME: lib-mgmt-production-cluster
     
     steps:
       - name: Configure AWS credentials
@@ -91,23 +94,23 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: eu-north-1
 
       - name: Deploy to ECS
         run: |
-          CLUSTER="lib-mgmt-${{ env.ENVIRONMENT }}-cluster"
-          SERVICE="${CLUSTER}-${{ matrix.service }}"
-          
+          set -e
+          echo ">>> WORKFLOW v2: eu-north-1, service=lib-mgmt-production-${{ matrix.service }} (if you see us-east-1 or CLUSTER-books, this file was not pushed)"
+          SERVICE="lib-mgmt-production-${{ matrix.service }}"
+          echo "Updating cluster=lib-mgmt-production-cluster service=$SERVICE region=eu-north-1"
           aws ecs update-service \
-            --cluster $CLUSTER \
-            --service $SERVICE \
+            --cluster lib-mgmt-production-cluster \
+            --service "$SERVICE" \
             --force-new-deployment \
-            --region ${{ env.AWS_REGION }}
-          
+            --region eu-north-1
           aws ecs wait services-stable \
-            --cluster $CLUSTER \
-            --services $SERVICE \
-            --region ${{ env.AWS_REGION }}
+            --cluster lib-mgmt-production-cluster \
+            --services "$SERVICE" \
+            --region eu-north-1
 
   # Verify deployment
   verify:
@@ -135,7 +138,7 @@ jobs:
         id: alb
         working-directory: terraform
         run: |
-          terraform init
+          terraform init -reconfigure
           echo "dns=$(terraform output -raw alb_dns_name)" >> $GITHUB_OUTPUT
 
       - name: Health Check
