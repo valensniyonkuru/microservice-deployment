@@ -173,7 +173,7 @@ resource "aws_appautoscaling_target" "services" {
 resource "aws_appautoscaling_policy" "cpu" {
   for_each = var.enable_autoscaling ? toset(var.services) : []
 
-  name               = "${var.project_name}-${var.environment}-${each.key}-cpu-autoscaling"
+  name               = "lib-mgmt-${var.environment}-${each.key}-cpu"
   policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.services[each.key].resource_id
   scalable_dimension = aws_appautoscaling_target.services[each.key].scalable_dimension
@@ -193,7 +193,7 @@ resource "aws_appautoscaling_policy" "cpu" {
 resource "aws_appautoscaling_policy" "memory" {
   for_each = var.enable_autoscaling ? toset(var.services) : []
 
-  name               = "${var.project_name}-${var.environment}-${each.key}-memory-autoscaling"
+  name               = "lib-mgmt-${var.environment}-${each.key}-mem"
   policy_type        = "TargetTrackingScaling"
   resource_id        = aws_appautoscaling_target.services[each.key].resource_id
   scalable_dimension = aws_appautoscaling_target.services[each.key].scalable_dimension

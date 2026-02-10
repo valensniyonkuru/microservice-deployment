@@ -1,6 +1,6 @@
 # ALB Security Group
 resource "aws_security_group" "alb" {
-  name_prefix = "${var.project_name}-${var.environment}-alb-"
+  name_prefix = "lib-mgmt-${var.environment}-alb-"
   description = "Security group for Application Load Balancer"
   vpc_id      = var.vpc_id
 
@@ -39,7 +39,7 @@ resource "aws_security_group" "alb" {
 
 # ECS Security Group
 resource "aws_security_group" "ecs" {
-  name_prefix = "${var.project_name}-${var.environment}-ecs-"
+  name_prefix = "lib-mgmt-${var.environment}-ecs-"
   description = "Security group for ECS tasks"
   vpc_id      = var.vpc_id
 
@@ -70,7 +70,7 @@ resource "aws_security_group" "ecs" {
 
 # RDS Security Group
 resource "aws_security_group" "rds" {
-  name_prefix = "${var.project_name}-${var.environment}-rds-"
+  name_prefix = "lib-mgmt-${var.environment}-rds-"
   description = "Security group for RDS database"
   vpc_id      = var.vpc_id
 
@@ -101,7 +101,7 @@ resource "aws_security_group" "rds" {
 
 # Amazon MQ Security Group
 resource "aws_security_group" "mq" {
-  name_prefix = "${var.project_name}-${var.environment}-mq-"
+  name_prefix = "lib-mgmt-${var.environment}-mq-"
   description = "Security group for Amazon MQ (RabbitMQ)"
   vpc_id      = var.vpc_id
 

@@ -27,7 +27,7 @@ resource "aws_ecs_cluster_capacity_providers" "main" {
 
 # ECS Task Execution Role
 resource "aws_iam_role" "ecs_execution_role" {
-  name_prefix = "${var.project_name}-${var.environment}-ecs-execution-"
+  name_prefix = "lib-mgmt-${var.environment}-exec-"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -54,7 +54,7 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_role_policy" {
 
 # Additional policy for ECR
 resource "aws_iam_role_policy" "ecs_execution_role_additional" {
-  name_prefix = "${var.project_name}-${var.environment}-ecs-execution-additional-"
+  name_prefix = "lib-mgmt-${var.environment}-exec-add-"
   role        = aws_iam_role.ecs_execution_role.id
 
   policy = jsonencode({
@@ -76,7 +76,7 @@ resource "aws_iam_role_policy" "ecs_execution_role_additional" {
 
 # ECS Task Role (for application permissions)
 resource "aws_iam_role" "ecs_task_role" {
-  name_prefix = "${var.project_name}-${var.environment}-ecs-task-"
+  name_prefix = "lib-mgmt-${var.environment}-task-"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -98,7 +98,7 @@ resource "aws_iam_role" "ecs_task_role" {
 
 # Task Role Policy (add application-specific permissions here)
 resource "aws_iam_role_policy" "ecs_task_role_policy" {
-  name_prefix = "${var.project_name}-${var.environment}-ecs-task-policy-"
+  name_prefix = "lib-mgmt-${var.environment}-task-pol-"
   role        = aws_iam_role.ecs_task_role.id
 
   policy = jsonencode({
