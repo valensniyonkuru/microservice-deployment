@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+
+# Environment variables
+.env
+.env.*
+*.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Build outputs
+dist/
+build/
+
+# Logs
+*.log
+
+# Testing
+coverage/
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+crash.log
+*tfplan*
+.terraform.lock.hcl
+
+# Temporary files
+*.tmp
+*.bak
+
+# Secrets
+*.pem
+*.key
+
+# AWS
+.aws/

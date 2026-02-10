@@ -1,0 +1,56 @@
+# AWS Configuration
+aws_region  = "us-east-1"
+environment = "production"
+
+# Project Configuration
+project_name = "library-management"
+
+# VPC Configuration
+vpc_cidr             = "10.0.0.0/16"
+availability_zones   = ["us-east-1a", "us-east-1b"]
+public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24"]
+private_subnet_cidrs = ["10.0.10.0/24", "10.0.11.0/24"]
+
+# Services
+services = ["books", "customers", "orders"]
+
+# Database Configuration (stored in GitHub Secrets)
+database_name      = "library_db"
+database_username  = "library_user"
+# database_password - Set via TF_VAR_database_password in pipeline
+db_instance_class  = "db.t3.micro"
+db_allocated_storage = 20
+db_multi_az        = false
+
+# RabbitMQ Configuration (stored in GitHub Secrets)
+rabbitmq_username = "admin"
+# rabbitmq_password - Set via TF_VAR_rabbitmq_password in pipeline
+mq_instance_type  = "mq.t3.micro"
+
+# JWT Configuration (stored in GitHub Secrets)
+# jwt_secret - Set via TF_VAR_jwt_secret in pipeline
+
+# ECS Task Configuration
+ecs_task_cpu = {
+  books     = "256"
+  customers = "256"
+  orders    = "256"
+}
+
+ecs_task_memory = {
+  books     = "512"
+  customers = "512"
+  orders    = "512"
+}
+
+# ECS Service Configuration
+ecs_service_desired_count = {
+  books     = 2
+  customers = 2
+  orders    = 2
+}
+
+# Auto Scaling Configuration
+enable_autoscaling       = true
+autoscaling_target_cpu   = 70
+autoscaling_target_memory = 80
