@@ -142,16 +142,6 @@ resource "aws_ecs_service" "services" {
     container_port   = local.service_configs[each.key].port
   }
 
-  deployment_configuration {
-    maximum_percent         = 200
-    minimum_healthy_percent = 100
-  }
-
-  deployment_circuit_breaker {
-    enable   = true
-    rollback = true
-  }
-
   health_check_grace_period_seconds = 60
 
   tags = {
