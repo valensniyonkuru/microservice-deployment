@@ -1,6 +1,6 @@
 # Amazon MQ Configuration (RabbitMQ)
 resource "aws_mq_broker" "main" {
-  broker_name = "${var.project_name}-${var.environment}-rabbitmq"
+  broker_name = "lib-mgmt-${var.environment}-mq"
 
   engine_type        = "RabbitMQ"
   engine_version     = "3.13"

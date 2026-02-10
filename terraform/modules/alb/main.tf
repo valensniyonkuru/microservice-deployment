@@ -1,6 +1,6 @@
 # Application Load Balancer
 resource "aws_lb" "main" {
-  name               = "${var.project_name}-${var.environment}-alb"
+  name               = "lib-mgmt-${var.environment}-alb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [var.security_group_id]
@@ -17,7 +17,7 @@ resource "aws_lb" "main" {
 
 # Target Groups
 resource "aws_lb_target_group" "books" {
-  name                 = "${var.project_name}-${var.environment}-books-tg"
+  name                 = "lib-mgmt-${var.environment}-books"
   port                 = 3000
   protocol             = "HTTP"
   vpc_id               = var.vpc_id
@@ -41,7 +41,7 @@ resource "aws_lb_target_group" "books" {
 }
 
 resource "aws_lb_target_group" "customers" {
-  name                 = "${var.project_name}-${var.environment}-customers-tg"
+  name                 = "lib-mgmt-${var.environment}-cust"
   port                 = 3001
   protocol             = "HTTP"
   vpc_id               = var.vpc_id
@@ -65,7 +65,7 @@ resource "aws_lb_target_group" "customers" {
 }
 
 resource "aws_lb_target_group" "orders" {
-  name                 = "${var.project_name}-${var.environment}-orders-tg"
+  name                 = "lib-mgmt-${var.environment}-orders"
   port                 = 3002
   protocol             = "HTTP"
   vpc_id               = var.vpc_id

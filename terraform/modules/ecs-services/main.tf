@@ -40,7 +40,7 @@ locals {
 resource "aws_ecs_task_definition" "services" {
   for_each = toset(var.services)
 
-  family                   = "${var.project_name}-${var.environment}-${each.key}"
+  family                   = "lib-mgmt-${var.environment}-${each.key}"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = local.service_configs[each.key].cpu
@@ -124,7 +124,7 @@ resource "aws_ecs_task_definition" "services" {
 resource "aws_ecs_service" "services" {
   for_each = toset(var.services)
 
-  name            = "${var.project_name}-${var.environment}-${each.key}"
+  name            = "lib-mgmt-${var.environment}-${each.key}"
   cluster         = var.ecs_cluster_id
   task_definition = aws_ecs_task_definition.services[each.key].arn
   desired_count   = local.service_configs[each.key].desired_count

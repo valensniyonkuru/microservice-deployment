@@ -72,8 +72,8 @@ jobs:
           context: ./services/${{ matrix.service }}
           push: true
           tags: |
-            ${{ steps.login-ecr.outputs.registry }}/library-management-${{ env.ENVIRONMENT }}-${{ matrix.service }}:latest
-            ${{ steps.login-ecr.outputs.registry }}/library-management-${{ env.ENVIRONMENT }}-${{ matrix.service }}:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/lib-mgmt-${{ env.ENVIRONMENT }}-${{ matrix.service }}:latest
+            ${{ steps.login-ecr.outputs.registry }}/lib-mgmt-${{ env.ENVIRONMENT }}-${{ matrix.service }}:${{ github.sha }}
 
   # Deploy services
   deploy:
@@ -95,7 +95,7 @@ jobs:
 
       - name: Deploy to ECS
         run: |
-          CLUSTER="library-management-${{ env.ENVIRONMENT }}-cluster"
+          CLUSTER="lib-mgmt-${{ env.ENVIRONMENT }}-cluster"
           SERVICE="${CLUSTER}-${{ matrix.service }}"
           
           aws ecs update-service \

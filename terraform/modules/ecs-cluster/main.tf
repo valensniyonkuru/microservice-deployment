@@ -1,6 +1,6 @@
 # ECS Cluster
 resource "aws_ecs_cluster" "main" {
-  name = "${var.project_name}-${var.environment}-cluster"
+  name = "lib-mgmt-${var.environment}-cluster"
 
   setting {
     name  = "containerInsights"

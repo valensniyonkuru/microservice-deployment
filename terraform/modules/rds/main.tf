@@ -10,7 +10,7 @@ resource "aws_db_subnet_group" "main" {
 
 # RDS PostgreSQL Instance
 resource "aws_db_instance" "main" {
-  identifier = "${var.project_name}-${var.environment}-postgres"
+  identifier = "lib-mgmt-${var.environment}-db"
 
   # Engine
   engine         = "postgres"
