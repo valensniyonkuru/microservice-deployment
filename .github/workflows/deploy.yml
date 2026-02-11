@@ -99,18 +99,28 @@ jobs:
       - name: Deploy to ECS
         run: |
           set -e
-          echo ">>> WORKFLOW v2: eu-north-1, service=lib-mgmt-production-${{ matrix.service }} (if you see us-east-1 or CLUSTER-books, this file was not pushed)"
           SERVICE="lib-mgmt-production-${{ matrix.service }}"
-          echo "Updating cluster=lib-mgmt-production-cluster service=$SERVICE region=eu-north-1"
+          CLUSTER="lib-mgmt-production-cluster"
+          REGION="eu-north-1"
+          echo "Triggering deployment for $SERVICE in $REGION..."
           aws ecs update-service \
-            --cluster lib-mgmt-production-cluster \
+            --cluster "$CLUSTER" \
             --service "$SERVICE" \
             --force-new-deployment \
-            --region eu-north-1
-          aws ecs wait services-stable \
-            --cluster lib-mgmt-production-cluster \
-            --services "$SERVICE" \
-            --region eu-north-1
+            --region "$REGION" \
+            --no-cli-pager --output json > /dev/null
+          echo "Waiting for service to stabilize (up to 20 min, poll every 30s)..."
+          for i in $(seq 1 40); do
+            RUNNING=$(aws ecs describe-services --cluster "$CLUSTER" --services "$SERVICE" --region "$REGION" --query 'services[0].runningCount' --output text)
+            DESIRED=$(aws ecs describe-services --cluster "$CLUSTER" --services "$SERVICE" --region "$REGION" --query 'services[0].desiredCount' --output text)
+            echo "  [$i/40] running=$RUNNING desired=$DESIRED"
+            if [ "$RUNNING" = "$DESIRED" ] && [ -n "$DESIRED" ] && [ "$DESIRED" != "0" ]; then
+              echo "Service $SERVICE is stable."
+              exit 0
+            fi
+            [ $i -eq 40 ] && { echo "Timeout: $SERVICE did not reach running=$DESIRED in 20 min. Check ECS console for task/health issues."; exit 1; }
+            sleep 30
+          done
 
   # Verify deployment
   verify:
